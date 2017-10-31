@@ -75,6 +75,7 @@
 
 #[macro_use]
 extern crate error_chain;
+extern crate semver;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -86,9 +87,10 @@ use std::path::Path;
 use std::process::Command;
 use std::str::from_utf8;
 
-pub use errors::{Error, Result};
+pub use errors::{Error, ErrorKind, Result};
 pub use dependency::{Dependency, DependencyKind};
 
+mod errors;
 mod dependency;
 
 #[derive(Clone, Deserialize, Debug)]
@@ -152,20 +154,6 @@ pub struct Target {
     pub crate_types: Vec<String>,
     /// Path to the main source file of the target
     pub src_path: String,
-}
-
-mod errors {
-    //! Create the `Error`, `ErrorKind`, `ResultExt`, and `Result` types
-    error_chain!{
-        foreign_links {
-            // Error during execution of `cargo metadata`
-            Io(::std::io::Error);
-            // Output of `cargo metadata` was not valid utf8
-            Utf8(::std::str::Utf8Error);
-            // Deserialization error (structure of json did not match expected structure)
-            Json(::serde_json::Error);
-        }
-    }
 }
 
 /// Obtain metadata only about the root package and don't fetch dependencies
